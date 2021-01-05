@@ -33,9 +33,11 @@ public class LoginActivity extends AppCompatActivity {
                 editSenha.getText().toString(), new Authentication.CallbackAuth() {
                     @Override
                     public void isSuccessfullAuth(FirebaseUser user) {
-                        startActivity(new Intent(
+                        Intent intent = new Intent(
                                 LoginActivity.this,
-                                MainActivity.class));
+                                MainActivity.class);
+                        intent.putExtra("userId", user.getUid());
+                        startActivity(intent);
                     }
 
                     @Override

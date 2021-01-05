@@ -1,13 +1,13 @@
 package com.example.myapplication.activities;
 
-import androidx.appcompat.app.AppCompatActivity;
-
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Toast;
+
+import androidx.appcompat.app.AppCompatActivity;
 
 import com.example.myapplication.R;
 import com.example.myapplication.firebase.auth.Authentication;
@@ -42,11 +42,14 @@ public class CadastroActivity extends AppCompatActivity {
                 .createUserAndPassword(receivedUser.getEmail(), receivedUser.getSenha(), new Authentication.CallbackAuth() {
                     @Override
                     public void isSuccessfullAuth(FirebaseUser user) {
-                        receivedUser.setId(user.getUid());
+                        if (user != null) {
+                            receivedUser.setId(user.getUid());
 
-                        new UserRepository(CadastroActivity.this)
-                                .saveAndModifyUser(receivedUser);
-                        goToLoginActivity();
+                            new UserRepository(CadastroActivity.this)
+                                    .saveOrModifyUser(receivedUser);
+                            goToLoginActivity();
+
+                        }
                     }
 
                     @Override
