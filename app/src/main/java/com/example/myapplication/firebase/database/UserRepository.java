@@ -7,7 +7,6 @@ import androidx.annotation.NonNull;
 
 import com.example.myapplication.firebase.ConfigFirebase;
 import com.example.myapplication.model.User;
-import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
@@ -23,7 +22,6 @@ public class UserRepository {
     private final FirebaseDatabase db;
     private final DatabaseReference tb_users;
     private final Context context;
-    private User user = null;
 
     public UserRepository(Context context) {
         this.db = ConfigFirebase.getFirebaseDataBase();
@@ -31,7 +29,7 @@ public class UserRepository {
         this.context = context;
     }
 
-    public void saveAndModifyUser(User user) {
+    public void saveOrModifyUser(User user) {
         tb_users
                 .child(user.getId())
                 .setValue(user)
@@ -46,25 +44,32 @@ public class UserRepository {
         });
     }
 
-    public User getUserData(String id) {
+    public void getUserData(String id, UserDataCallback callback) {
 
-        tb_users.addValueEventListener(new ValueEventListener() {
+        tb_users.child(id).addValueEventListener(new ValueEventListener() {
 
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
-                 user = snapshot.child(id)
-                        .getValue(User.class);
+
+                User user = snapshot.getValue(User.class);
+                callback.userDataSuccessful(user);
+         //       Toast.makeText(context, "Foi possível sim " + user.getNome(), LENGTH_LONG).show();
             }
 
             @Override
             public void onCancelled(@NonNull DatabaseError error) {
+                error.toException().fillInStackTrace();
                 Toast.makeText(context,
-                        "Não foi possível buscar os dados do usuário",
+                        "Não foi possível buscar os dados do usuário " + error.getMessage(),
                         LENGTH_SHORT).show();
             }
 
         });
-        return user;
+
+    }
+
+    public interface UserDataCallback {
+        void userDataSuccessful(User user);
     }
 
 }
